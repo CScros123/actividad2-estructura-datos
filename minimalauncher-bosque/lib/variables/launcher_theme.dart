@@ -14,6 +14,13 @@ class LauncherThemePreset {
   final Color textColor;
 
   static const presets = <LauncherThemePreset>[
+    // Bosque: verde oscuro con paisaje animado (montañas, niebla, hojas).
+    LauncherThemePreset(
+      id: 'bosque',
+      name: 'Bosque',
+      backgroundColor: Color(0xFF0F2419),
+      textColor: Color(0xFFEEF5E8),
+    ),
     LauncherThemePreset(
       id: 'light',
       name: 'Light',

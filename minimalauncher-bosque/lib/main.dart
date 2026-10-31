@@ -7,6 +7,7 @@ import 'package:minimalauncher/pages/home_page.dart';
 import 'package:minimalauncher/pages/left_screen.dart';
 import 'package:minimalauncher/pages/right_screen.dart';
 import 'package:minimalauncher/pages/widgets/app_drawer.dart';
+import 'package:minimalauncher/pages/widgets/nature_background.dart';
 import 'package:minimalauncher/variables/launcher_theme.dart';
 import 'package:minimalauncher/variables/strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +28,7 @@ class Launcher extends StatefulWidget {
 
 class _LauncherState extends State<Launcher> {
   bool showWallpaper = false;
+  bool nature = true; // tema Bosque con paisaje animado
   Color selectedColor = Colors.white;
   Color textColor = Colors.black;
 
@@ -80,6 +82,7 @@ class _LauncherState extends State<Launcher> {
     if (!mounted) return;
     setState(() {
       showWallpaper = prefs.getBool(prefsShowWallpaper) ?? false;
+      nature = theme.id == 'bosque';
       selectedColor = theme.backgroundColor;
       textColor = theme.textColor;
     });
@@ -99,18 +102,25 @@ class _LauncherState extends State<Launcher> {
         onPopInvokedWithResult: (didPop, result) {
           _pageController.jumpToPage(1);
         },
-        child: Scaffold(
-          backgroundColor: showWallpaper ? Colors.transparent : selectedColor,
+        // El paisaje va detrás de todo, también de la barra de estado.
+        child: Stack(children: [
+          if (nature && !showWallpaper)
+            const Positioned.fill(child: NatureBackground()),
+          Scaffold(
+          backgroundColor:
+              showWallpaper || nature ? Colors.transparent : selectedColor,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             toolbarHeight: 0,
             systemOverlayStyle: SystemUiOverlayStyle(
-              systemNavigationBarColor:
-                  showWallpaper ? Colors.transparent : selectedColor,
+              systemNavigationBarColor: showWallpaper || nature
+                  ? Colors.transparent
+                  : selectedColor,
               systemNavigationBarIconBrightness: iconsBrightness,
               systemNavigationBarContrastEnforced: false,
-              statusBarColor:
-                  showWallpaper ? Colors.transparent : selectedColor,
+              statusBarColor: showWallpaper || nature
+                  ? Colors.transparent
+                  : selectedColor,
               statusBarIconBrightness: iconsBrightness,
               systemStatusBarContrastEnforced: false,
             ),
@@ -164,6 +174,7 @@ class _LauncherState extends State<Launcher> {
             },
           ),
         ),
+      ]),
       ),
     );
   }
@@ -180,7 +191,8 @@ class _LauncherState extends State<Launcher> {
         constraints: BoxConstraints(maxHeight: height),
         child: AppDrawer(
           autoFocusSearch: true,
-          bgColor: selectedColor,
+          // En Bosque el cajón es verde translúcido: se intuyen las montañas.
+          bgColor: nature ? selectedColor.withAlpha(232) : selectedColor,
           textColor: textColor,
           showWallpaper: showWallpaper,
         ),

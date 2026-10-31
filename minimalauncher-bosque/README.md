@@ -1,3 +1,13 @@
+# minimal bosque
+
+Versión modificada de [minimalauncher](https://github.com/0-manbir/minimalauncher) de manbir singh (licencia MIT, ver `LICENSE`).
+
+**Cambios:** tema **Bosque** (predeterminado) con paisaje animado detrás del launcher: cielo verde, montañas en capas, niebla, nubes lentas, pinos, hojas que caen y luciérnagas (`lib/pages/widgets/nature_background.dart`). Se pausa cuando el launcher no está visible y respeta «quitar animaciones» de Android. Los temas originales siguen disponibles en Ajustes. Se instala junto al original (`com.manbir.minimalauncher.bosque`).
+
+Compilar: `flutter pub get && flutter build apk --release`.
+
+---
+
 _minimalauncher_ is an Android Launcher app 🚀 with a minimal interface, providing a clean and distraction-free experience 🌟
 It is designed with simplicity and efficiency in mind, to keep you focused on what truly matters ⌚
 
