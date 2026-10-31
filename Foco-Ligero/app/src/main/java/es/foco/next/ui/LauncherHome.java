@@ -102,11 +102,13 @@ final class LauncherHome {
 
     EditText search = Design.field(a, "Buscar app…", "", false);
     search.setSingleLine(true);
+    search.setTag(FloatingLeaves.SHIELD);
     LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1, -2);
     sp.bottomMargin = Design.dp(a, 12);
     body.addView(search, sp);
 
     LinearLayout list = Design.column(a);
+    list.setTag(FloatingLeaves.SHIELD);
     body.addView(list);
     List<App> apps = installed(a);
     fill(a, list, apps, config, "");

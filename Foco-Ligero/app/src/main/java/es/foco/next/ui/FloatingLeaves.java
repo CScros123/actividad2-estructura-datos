@@ -22,7 +22,9 @@ public final class FloatingLeaves extends View {
   void configure(){var p=getContext().getSharedPreferences("foco-ambient",0);enabled=p.getBoolean("enabled",true)&&p.getBoolean("leaves",true);count=p.getInt("wind",1)==0?10:p.getInt("wind",1)==2?22:16;invalidate();}
   void frame(double seconds,boolean moving){if(moving)time=seconds;if(enabled)invalidate();}
   void rebuildMask(){mask.reset();getLocationOnScreen(origin);if(protectedRoot!=null)protectTree(protectedRoot);}
-  private void protectTree(View v){if(v==this||v.getVisibility()!=VISIBLE)return;if(v instanceof TextView||v instanceof ImageButton||v instanceof OrbitApps){if(v.getGlobalVisibleRect(rect)){rect.offset(-origin[0],-origin[1]);rect.inset(-Math.round(3*dp),-Math.round(3*dp));mask.addRect(rect.left,rect.top,rect.right,rect.bottom,Path.Direction.CW);}return;}if(v instanceof ViewGroup){ViewGroup group=(ViewGroup)v;for(int i=0;i<group.getChildCount();i++)protectTree(group.getChildAt(i));}}
+  static final String SHIELD="leaf_shield";
+  // A shielded container counts as one rectangle, so long lists stay cheap to mask and draw.
+  private void protectTree(View v){if(v==this||v.getVisibility()!=VISIBLE)return;if(SHIELD.equals(v.getTag())||v instanceof TextView||v instanceof ImageButton||v instanceof OrbitApps){if(v.getGlobalVisibleRect(rect)){rect.offset(-origin[0],-origin[1]);rect.inset(-Math.round(3*dp),-Math.round(3*dp));mask.addRect(rect.left,rect.top,rect.right,rect.bottom,Path.Direction.CW);}return;}if(v instanceof ViewGroup){ViewGroup group=(ViewGroup)v;for(int i=0;i<group.getChildCount();i++)protectTree(group.getChildAt(i));}}
   @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){rebuildMask();}
   @Override protected void onDraw(Canvas c){super.onDraw(c);if(!enabled)return;c.save();c.clipOutPath(mask);c.scale(dp,dp);float w=getWidth()/dp,h=getHeight()/dp;double t=time;
     for(int i=0;i<count;i++){double travel=t*(22+i%4*5)+i*(h+110)/count;float y=(float)(travel%(h+110))-55;float x=(float)((i*.6180339*w+t*(12+i%3*5))%(w+100))-50+(float)Math.sin(t*.8+i)*24;
