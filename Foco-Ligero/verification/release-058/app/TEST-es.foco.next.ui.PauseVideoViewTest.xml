@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.ui.PauseVideoViewTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-27T02:25:51" hostname="608e33640ca9" time="11.47">
+  <properties/>
+  <testcase name="constructionAndRetryWithoutVisibleSurfaceNeverStartDecoder" classname="es.foco.next.ui.PauseVideoViewTest" time="9.595"/>
+  <testcase name="savingAndWindowRemovalReleaseAnExistingPlayer" classname="es.foco.next.ui.PauseVideoViewTest" time="1.759"/>
+  <testcase name="motionPolicyHonorsSavingReducedMotionAndSystemPower" classname="es.foco.next.ui.PauseVideoViewTest" time="0.116"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

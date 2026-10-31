@@ -1,0 +1,8 @@
+<resources>
+<string name="app_name">Foco</string>
+<string name="duration_minutes">%1$d min %2$d s</string>
+<string name="choose_apps">Elegir apps de ocio</string>
+<string name="choose_one_app">Elegir mi siguiente paso</string>
+<string name="save">Guardar</string><string name="cancel">Cancelar</string>
+<string name="accessibility_description">Foco usa cambios de ventana para medir el tiempo en tus apps elegidas y bloquearlas tras 5 minutos por hora. Solo consulta el paquete de la ventana, sin leer mensajes, vídeos ni direcciones web. Las llamadas, Inicio, Ajustes y bancos reconocidos siguen disponibles. Android conserva el control de este permiso.</string>
+</resources>

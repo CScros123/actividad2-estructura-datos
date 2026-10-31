@@ -1,0 +1,218 @@
+/workspace/Foco-Ligero/app/src/main/AndroidManifest.xml:12: Warning: The attribute android:allowBackup is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute android:dataExtractionRules specifying an @xml resource which configures cloud backups and device transfers on Android 12 and higher. [DataExtractionRules]
+ <application android:icon="@drawable/ic_launcher" android:allowBackup="false" android:label="@string/app_name" android:theme="@style/AppTheme" android:supportsRtl="true" android:usesCleartextTraffic="false">
+                                                                        ~~~~~
+
+   Explanation for issues of type "DataExtractionRules":
+   Before Android 12, the attributes android:allowBackup and
+   android:fullBackupContent were used to configure all forms of backup,
+   including cloud backups, device-to-device transfers and adb backup.
+
+   In Android 12 and higher, these attributes have been deprecated and will
+   only apply to cloud backups. You should instead use the attribute
+   android:dataExtractionRules, specifying an @xml resource that configures
+   which files to back up, for cloud backups and for device-to-device
+   transfers, separately. If your minSdkVersion supports older versions,
+   you'll still want to specify an android:fullBackupContent resource if the
+   default behavior is not right for your app.
+
+   https://developer.android.com/about/versions/12/backup-restore#xml-changes
+   https://goo.gle/DataExtractionRules
+
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/runtime/CalmAudio.java:10: Warning: Do not place Android context classes in static fields; this is a memory leak [StaticFieldLeak]
+  private static Context app;
+          ~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/data/Repository.java:16: Warning: Do not place Android context classes in static fields (static reference to Repository which has field context pointing to Context); this is a memory leak [StaticFieldLeak]
+  private static Repository instance;
+          ~~~~~~
+
+   Explanation for issues of type "StaticFieldLeak":
+   A static field will leak contexts.
+
+   Non-static inner classes have an implicit reference to their outer class.
+   If that outer class is for example a Fragment or Activity, then this
+   reference means that the long-running handler/loader/task will hold a
+   reference to the activity which prevents it from getting garbage
+   collected.
+
+   Similarly, direct field references to activities and fragments from these
+   longer running instances can cause leaks.
+
+   ViewModel classes should never point to Views or non-application Contexts.
+
+/workspace/Foco-Ligero/app/src/main/res/layout/activity_main.xml:1: Warning: This <FrameLayout> can be replaced with a <merge> tag [MergeRootFrame]
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
+^
+
+   Explanation for issues of type "MergeRootFrame":
+   If a <FrameLayout> is the root of a layout and does not provide background
+   or padding etc, it can often be replaced with a <merge> tag which is
+   slightly more efficient. Note that this depends on context, so make sure
+   you understand how the <merge> tag works before proceeding.
+
+   https://android-developers.googleblog.com/2009/03/android-layout-tricks-3-optimize-by.html
+
+/workspace/Foco-Ligero/app/src/main/res/drawable/calm_landscape.xml:1: Warning: The resource R.drawable.calm_landscape appears to be unused [UnusedResources]
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:width="195dp" android:height="100dp" android:viewportWidth="390" android:viewportHeight="200">
+^
+/workspace/Foco-Ligero/app/src/main/res/raw/sendero.ogg: Warning: The resource R.raw.sendero appears to be unused [UnusedResources]
+
+   Explanation for issues of type "UnusedResources":
+   Unused resources make applications larger and slow down builds.
+
+
+   The unused resource check can ignore tests. If you want to include
+   resources that are only referenced from tests, consider packaging them in a
+   test source set instead.
+
+   You can include test sources in the unused resource check by setting the
+   system property lint.unused-resources.include-tests =true, and to exclude
+   them (usually for performance reasons), use
+   lint.unused-resources.exclude-tests =true.
+   ,
+
+/workspace/Foco-Ligero/app/src/main/res/layout/activity_main.xml:3: Warning: This namespace declaration is redundant [RedundantNamespace]
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:fitsSystemWindows="true">
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "RedundantNamespace":
+   In Android XML documents, only specify the namespace on the root/document
+   element. Namespace declarations elsewhere in the document are typically
+   accidental leftovers from copy/pasting XML from other files or
+   documentation.
+
+/workspace/Foco-Ligero/app/src/main/res/layout/activity_main.xml:3: Warning: Unused namespace declaration xmlns:android; already declared on the root element [UnusedNamespace]
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:fitsSystemWindows="true">
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UnusedNamespace":
+   Unused namespace declarations take up space and require processing that is
+   not necessary
+
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/OrbitApps.java:12: Warning: Custom view OrbitApps is missing constructor used by tools: (Context) or (Context,AttributeSet) or (Context,AttributeSet,int) [ViewConstructor]
+final class OrbitApps extends LinearLayout {
+            ~~~~~~~~~
+
+   Explanation for issues of type "ViewConstructor":
+   Some layout tools (such as the Android layout editor) need to find a
+   constructor with one of the following signatures:
+   * View(Context context)
+   * View(Context context, AttributeSet attrs)
+   * View(Context context, AttributeSet attrs, int defStyle)
+
+   If your custom view needs to perform initialization which does not apply
+   when used in a layout editor, you can surround the given code with a check
+   to see if View#isInEditMode() is false, since that method will return false
+   at runtime but true within a user interface editor.
+
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/UiMotion.java:19: Warning: onTouch lambda should call View#performClick when a click is detected [ClickableViewAccessibility]
+    view.setOnTouchListener((v,e)->{
+                            ^
+
+   Explanation for issues of type "ClickableViewAccessibility":
+   If a View that overrides onTouchEvent or uses an OnTouchListener does not
+   also implement performClick and call it when clicks are detected, the View
+   may not handle accessibility actions properly. Logic handling the click
+   actions should ideally be placed in View#performClick as some accessibility
+   services invoke performClick when a click action should occur.
+
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/AmbientView.java:81: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+    String[] winds={"Suave","Natural","Intensa"};Button b=Design.button(c,"Intensidad del viento · "+winds[p.getInt("wind",1)],false,()->{});b.setOnClickListener(v->new android.app.AlertDialog.Builder(c).setTitle("Intensidad del viento").setSingleChoiceItems(winds,p.getInt("wind",1),(d,n)->{p.edit().putInt("wind",n).apply();b.setText("Intensidad del viento · "+winds[n]);scene.refresh();d.dismiss();}).setNegativeButton("Cancelar",null).show());box.addView(b);
+                                                                                                                                                                                                                                                                                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/AmbientView.java:81: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    String[] winds={"Suave","Natural","Intensa"};Button b=Design.button(c,"Intensidad del viento · "+winds[p.getInt("wind",1)],false,()->{});b.setOnClickListener(v->new android.app.AlertDialog.Builder(c).setTitle("Intensidad del viento").setSingleChoiceItems(winds,p.getInt("wind",1),(d,n)->{p.edit().putInt("wind",n).apply();b.setText("Intensidad del viento · "+winds[n]);scene.refresh();d.dismiss();}).setNegativeButton("Cancelar",null).show());box.addView(b);
+                                                                                                                                                                                                                                                                                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/FocusOverlay.java:34: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+    if(view!=null&&!warning&&shownNight==SceneTheme.night()){if(shownMinutes!=minutes){remaining.setText("Podrás volver en "+minutes+" min");shownMinutes=minutes;}return;}
+                                                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/FocusOverlay.java:34: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    if(view!=null&&!warning&&shownNight==SceneTheme.night()){if(shownMinutes!=minutes){remaining.setText("Podrás volver en "+minutes+" min");shownMinutes=minutes;}return;}
+                                                                                                         ~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/FocusOverlay.java:34: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    if(view!=null&&!warning&&shownNight==SceneTheme.night()){if(shownMinutes!=minutes){remaining.setText("Podrás volver en "+minutes+" min");shownMinutes=minutes;}return;}
+                                                                                                                                     ~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/FocusOverlay.java:81: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    TextView text=new TextView(service);text.setText("Foco · te queda 1 minuto de ocio. ¿Qué quieres hacer después?");text.setTextColor(0xFFF6F7FB);text.setTextSize(16);int pad=Design.dp(service,16);text.setPadding(pad,pad,pad,pad);
+                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/MainActivity.java:124: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+    budgetText.setText(Design.duration(this,Math.max(0,FocusEngine.BUDGET-used))+" disponibles");progress.setProgress((int)(used/1000));
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/MainActivity.java:124: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    budgetText.setText(Design.duration(this,Math.max(0,FocusEngine.BUDGET-used))+" disponibles");progress.setProgress((int)(used/1000));
+                                                                                 ~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/MainActivity.java:126: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+    windowText.setText(state+(left>0?" · la ventana termina en "+((left+59999)/60000)+" min":" · sin ventana en curso"));
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/OrbitApps.java:33: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    if(apps.isEmpty()){ring.setVisibility(GONE);open.setVisibility(GONE);pager.setVisibility(GONE);tip.setVisibility(GONE);caption.setText("Elige tu siguiente app en Mi plan.");}else showPage();
+                                                                                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/OrbitApps.java:38: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+  void select(int index){if(index<page*PAGE_SIZE||index>=Math.min(apps.size(),(page+1)*PAGE_SIZE))return;selected=index;caption.setText(apps.get(index).label);open.setText("Abrir · "+apps.get(index).label);ring.highlight();ring.arrange();announceForAccessibility(apps.get(index).label+", seleccionada");}
+                                                                                                                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/OrbitApps.java:38: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  void select(int index){if(index<page*PAGE_SIZE||index>=Math.min(apps.size(),(page+1)*PAGE_SIZE))return;selected=index;caption.setText(apps.get(index).label);open.setText("Abrir · "+apps.get(index).label);ring.highlight();ring.arrange();announceForAccessibility(apps.get(index).label+", seleccionada");}
+                                                                                                                                                                            ~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/OrbitApps.java:41: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+  private void showPage(){ring.bind();select(selected);int pages=(apps.size()+PAGE_SIZE-1)/PAGE_SIZE;pageLabel.setText((page+1)+" / "+pages+" · "+apps.size()+" apps");previous.setEnabled(pages>1);next.setEnabled(pages>1);}
+                                                                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/OrbitApps.java:41: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+  private void showPage(){ring.bind();select(selected);int pages=(apps.size()+PAGE_SIZE-1)/PAGE_SIZE;pageLabel.setText((page+1)+" / "+pages+" · "+apps.size()+" apps");previous.setEnabled(pages>1);next.setEnabled(pages>1);}
+                                                                                                                        ~~~~~~
+/workspace/Foco-Ligero/app/src/main/java/es/foco/next/ui/OrbitApps.java:41: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+  private void showPage(){ring.bind();select(selected);int pages=(apps.size()+PAGE_SIZE-1)/PAGE_SIZE;pageLabel.setText((page+1)+" / "+pages+" · "+apps.size()+" apps");previous.setEnabled(pages>1);next.setEnabled(pages>1);}
+                                                                                                                                                              ~~~~~~~
+
+   Explanation for issues of type "SetTextI18n":
+   When calling TextView#setText
+   * Never call Number#toString() to format numbers; it will not handle
+   fraction separators and locale-specific digits properly. Consider using
+   String#format with proper format specifications (%d or %f) instead.
+   * Do not pass a string literal (e.g. "Hello") to display text. Hardcoded
+   text can not be properly translated to other languages. Consider using
+   Android resource strings instead.
+   * Do not build messages by concatenating text chunks. Such messages can not
+   be properly translated.
+
+   https://developer.android.com/guide/topics/resources/localization.html
+
+/workspace/Foco-Ligero/app/src/main/res/layout/activity_main.xml:5: Warning: Hardcoded string "Ahorro de energía", should use @string resource [HardcodedText]
+ <Button android:id="@+id/energy_toggle" android:layout_width="wrap_content" android:layout_height="44dp" android:layout_gravity="end" android:layout_marginRight="20dp" android:layout_marginBottom="8dp" android:text="Ahorro de energía" android:textAllCaps="false" android:textColor="@color/copper" android:background="@drawable/button_secondary" android:paddingLeft="16dp" android:paddingRight="16dp"/>
+                                                                                                                                                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "HardcodedText":
+   Hardcoding text attributes directly in layout files is bad for several
+   reasons:
+
+   * When creating configuration variations (for example for landscape or
+   portrait) you have to repeat the actual text (and keep it up to date when
+   making changes)
+
+   * The application cannot be translated to other languages by just adding
+   new translations for existing string resources.
+
+   There are quickfixes to automatically extract this hardcoded string into a
+   resource lookup.
+
+/workspace/Foco-Ligero/app/src/main/res/layout/activity_main.xml:5: Warning: Consider replacing android:layout_marginRight with android:layout_marginEnd="20dp" to better support right-to-left layouts [RtlHardcoded]
+ <Button android:id="@+id/energy_toggle" android:layout_width="wrap_content" android:layout_height="44dp" android:layout_gravity="end" android:layout_marginRight="20dp" android:layout_marginBottom="8dp" android:text="Ahorro de energía" android:textAllCaps="false" android:textColor="@color/copper" android:background="@drawable/button_secondary" android:paddingLeft="16dp" android:paddingRight="16dp"/>
+                                                                                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "RtlHardcoded":
+   Using Gravity#LEFT and Gravity#RIGHT can lead to problems when a layout is
+   rendered in locales where text flows from right to left. Use Gravity#START
+   and Gravity#END instead. Similarly, in XML gravity and layout_gravity
+   attributes, use start rather than left.
+
+   For XML attributes such as paddingLeft and layout_marginLeft, use
+   paddingStart and layout_marginStart. NOTE: If your minSdkVersion is less
+   than 17, you should add both the older left/right attributes as well as the
+   new start/end attributes. On older platforms, where RTL is not supported
+   and the start/end attributes are unknown and therefore ignored, you need
+   the older left/right attributes. There is a separate lint check which
+   catches that type of error.
+
+   (Note: For Gravity#LEFT and Gravity#START, you can use these constants even
+   when targeting older platforms, because the start bitmask is a superset of
+   the left bitmask. Therefore, you can use gravity="start" rather than
+   gravity="left|start".)
+
+0 errors, 27 warnings

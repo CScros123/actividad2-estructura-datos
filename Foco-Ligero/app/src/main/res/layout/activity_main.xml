@@ -1,0 +1,11 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
+<es.foco.next.ui.AmbientView android:id="@+id/ambient" android:layout_width="match_parent" android:layout_height="match_parent"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:fitsSystemWindows="true">
+ <TextView android:id="@+id/page_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="20dp" android:textSize="34sp" android:textColor="@color/text_primary" android:textStyle="bold"/>
+ <Button android:id="@+id/energy_toggle" android:layout_width="wrap_content" android:layout_height="44dp" android:layout_gravity="end" android:layout_marginRight="20dp" android:layout_marginBottom="8dp" android:text="Ahorro de energía" android:textAllCaps="false" android:textColor="@color/copper" android:background="@drawable/button_secondary" android:paddingLeft="16dp" android:paddingRight="16dp"/>
+ <ScrollView android:id="@+id/page_scroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true"><LinearLayout android:id="@+id/page_body" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingLeft="20dp" android:paddingRight="20dp" android:paddingBottom="24dp"/></ScrollView>
+ <LinearLayout android:id="@+id/navigation" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="4dp" android:background="@color/surface_raised"/>
+</LinearLayout>
+
+<es.foco.next.ui.FloatingLeaves android:id="@+id/floating_leaves" android:layout_width="match_parent" android:layout_height="match_parent"/>
+</FrameLayout>

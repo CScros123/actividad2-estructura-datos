@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.ui.FloatingLeavesTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-27T02:25:24" hostname="608e33640ca9" time="12.791">
+  <properties/>
+  <testcase name="visibleLeavesMoveWhileControlsRemainClear" classname="es.foco.next.ui.FloatingLeavesTest" time="12.791"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

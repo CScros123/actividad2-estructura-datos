@@ -1,0 +1,21 @@
+{
+  "tests": {
+    "core": {
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app": {
+      "tests": 57,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint_errors": 0,
+  "video_bytes": 832453,
+  "video_sha256": "85b90ad1b1c35c45b2c9cdc1e53b2d85ae010777209a448bd5ddb1856cb97662",
+  "apk_bytes": 10847751,
+  "sha256": "46019179c587da00389b84035e8ed5d0434cbdd1e3a04ff600fa7199605f637e"
+}

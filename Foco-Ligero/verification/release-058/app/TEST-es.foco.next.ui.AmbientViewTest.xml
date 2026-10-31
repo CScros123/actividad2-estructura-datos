@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.ui.AmbientViewTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-27T02:24:39" hostname="608e33640ca9" time="15.195">
+  <properties/>
+  <testcase name="lifecycleMotionPreferenceAndPowerSaverStopFrames" classname="es.foco.next.ui.AmbientViewTest" time="13.026"/>
+  <testcase name="windIsContinuousAndBoundedAcrossLongCycles" classname="es.foco.next.ui.AmbientViewTest" time="0.046"/>
+  <testcase name="savingChoiceSurvivesActivityRecreation" classname="es.foco.next.ui.AmbientViewTest" time="1.379"/>
+  <testcase name="quickSavingStopsBothSceneAndUiWithoutChangingPlan" classname="es.foco.next.ui.AmbientViewTest" time="0.744"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

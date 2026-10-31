@@ -1,0 +1,5 @@
+<resources>
+ <color name="surface">#F2F5ED</color><color name="surface_raised">#FCFDF8</color><color name="text_primary">#243C31</color><color name="text_secondary">#53685B</color>
+ <color name="copper">#38674D</color><color name="copper_dark">#38674D</color><color name="copper_deep">#DFEBDD</color>
+ <color name="outline">#D7E2D1</color><color name="on_accent">#FCFDF8</color>
+ <color name="hero_start">#E4EEDC</color><color name="hero_end">#FCFDF8</color></resources>

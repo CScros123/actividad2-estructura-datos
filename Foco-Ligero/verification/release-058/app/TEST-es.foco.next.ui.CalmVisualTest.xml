@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.ui.CalmVisualTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-27T02:24:55" hostname="608e33640ca9" time="27.953">
+  <properties/>
+  <testcase name="exportsActualCalmBlockAndHasNoContinueControl" classname="es.foco.next.ui.CalmVisualTest" time="15.82"/>
+  <testcase name="exportsDarkInterface" classname="es.foco.next.ui.CalmVisualTest" time="3.712"/>
+  <testcase name="denialKeepsDailyReminderOff" classname="es.foco.next.ui.CalmVisualTest" time="1.339"/>
+  <testcase name="realInstalledGalleryNeverIncludesFacebookAndCorrectlyGroupsBible" classname="es.foco.next.ui.CalmVisualTest" time="1.385"/>
+  <testcase name="daylightUsesBrightThemeEvenWhenSystemIsDark" classname="es.foco.next.ui.CalmVisualTest" time="0.717"/>
+  <testcase name="noteCanBeSavedDuringFocusLockWithoutChangingBudget" classname="es.foco.next.ui.CalmVisualTest" time="2.404"/>
+  <testcase name="exportsRealLightInterfaceAndInstalledAlternatives" classname="es.foco.next.ui.CalmVisualTest" time="1.606"/>
+  <testcase name="musicStopsWhenActivityLeavesForeground" classname="es.foco.next.ui.CalmVisualTest" time="0.961"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

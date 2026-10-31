@@ -1,0 +1,21 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+ <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+ <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+ <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+ <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+ <queries>
+  <intent><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent>
+  <intent><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.HOME"/></intent>
+  <intent><action android:name="android.intent.action.DIAL"/><data android:scheme="tel"/></intent>
+ </queries>
+ <application android:icon="@drawable/ic_launcher" android:allowBackup="false" android:label="@string/app_name" android:theme="@style/AppTheme" android:supportsRtl="true" android:usesCleartextTraffic="false">
+  <activity android:name=".ui.MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
+  <service android:name=".runtime.FocusAccessibilityService" android:exported="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:label="@string/app_name"><intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter><meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility"/></service>
+  <service android:name=".runtime.CalmAudioService" android:exported="false" android:foregroundServiceType="mediaPlayback"/>
+  <receiver android:name=".runtime.DailyReminder" android:exported="false"><intent-filter>
+   <action android:name="android.intent.action.BOOT_COMPLETED"/><action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+   <action android:name="android.intent.action.TIME_SET"/><action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+  </intent-filter></receiver>
+ </application>
+</manifest>

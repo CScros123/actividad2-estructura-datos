@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.data.RepositoryTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-27T02:24:06" hostname="608e33640ca9" time="7.096">
+  <properties/>
+  <testcase name="activeLockRejectsConfigAndBackupReplacement" classname="es.foco.next.data.RepositoryTest" time="6.635"/>
+  <testcase name="intentAndSelectedAppsSurviveBackup" classname="es.foco.next.data.RepositoryTest" time="0.067"/>
+  <testcase name="invalidImportPreservesPriorData" classname="es.foco.next.data.RepositoryTest" time="0.078"/>
+  <testcase name="checkpointsRetainBudgetAndDeadlineButNotLiveAnchor" classname="es.foco.next.data.RepositoryTest" time="0.039"/>
+  <testcase name="weeklyCsvContainsOnlyObservedAggregatesAndExplicitChoices" classname="es.foco.next.data.RepositoryTest" time="0.078"/>
+  <testcase name="corruptOriginalIsPreservedAndNeverSilentlyReset" classname="es.foco.next.data.RepositoryTest" time="0.075"/>
+  <testcase name="alternativeCannotAlsoBeOcio" classname="es.foco.next.data.RepositoryTest" time="0.045"/>
+  <testcase name="migrationArchivesOriginalAndDropsLegacyCyclesAndOptions" classname="es.foco.next.data.RepositoryTest" time="0.076"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

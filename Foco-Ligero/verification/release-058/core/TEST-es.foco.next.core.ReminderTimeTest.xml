@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.core.ReminderTimeTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-26T04:58:53" hostname="12801ceb3edb" time="0.006">
+  <properties/>
+  <testcase name="beforeSelectedHourUsesTodayAndAtHourUsesTomorrow" classname="es.foco.next.core.ReminderTimeTest" time="0.0"/>
+  <testcase name="nextOccurrenceUsesLocalTimeAcrossDst" classname="es.foco.next.core.ReminderTimeTest" time="0.006"/>
+  <testcase name="invalidMinuteIsRejected" classname="es.foco.next.core.ReminderTimeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

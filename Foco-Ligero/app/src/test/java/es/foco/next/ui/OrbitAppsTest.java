@@ -1,0 +1,16 @@
+package es.foco.next.ui;
+import static org.junit.Assert.*;
+import android.app.Activity;import android.view.*;import android.widget.*;
+import java.util.*;import org.junit.*;import org.junit.runner.RunWith;import org.robolectric.*;import org.robolectric.annotation.*;
+@RunWith(RobolectricTestRunner.class) @Config(sdk=35) @LooperMode(LooperMode.Mode.PAUSED)
+public class OrbitAppsTest {
+ private org.robolectric.android.controller.ActivityController<Activity> controller;
+ private OrbitApps orbit;private final List<String> launched=new ArrayList<>();
+ @Before public void setup(){controller=Robolectric.buildActivity(Activity.class).setup().visible();List<Alternatives.Entry> apps=new ArrayList<>();for(int i=0;i<15;i++)apps.add(new Alternatives.Entry("app."+i,"App "+i,0));orbit=new OrbitApps(controller.get(),apps,"app.5",e->launched.add(e.pkg));controller.get().setContentView(orbit);orbit.measure(View.MeasureSpec.makeMeasureSpec(1080,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(1500,View.MeasureSpec.EXACTLY));orbit.layout(0,0,1080,1500);}
+ @After public void teardown(){controller.pause().stop().destroy();}
+ private ViewGroup ring(){return (ViewGroup)orbit.getChildAt(0);}
+ @Test public void realAppSelectionAndOpeningAreSeparateInteractions(){assertEquals(15,orbit.count());for(int i=0;i<7;i++)assertNotNull(((ImageButton)ring().getChildAt(i)).getDrawable());assertEquals("App 5",((TextView)orbit.getChildAt(1)).getText().toString());ring().getChildAt(1).performClick();assertEquals(1,orbit.selectedIndex());assertTrue(launched.isEmpty());ring().getChildAt(1).performClick();assertEquals(List.of("app.1"),launched);assertTrue(ring().getChildAt(1).isSelected());}
+ @Test public void pagingReachesEveryAppIncludingLastPartialPage(){orbit.page(1);assertEquals(1,orbit.currentPage());assertEquals(7,orbit.selectedIndex());orbit.select(13);orbit.launchSelected();assertEquals("app.13",launched.get(0));orbit.page(1);assertEquals(14,orbit.selectedIndex());assertEquals(View.GONE,ring().getChildAt(1).getVisibility());orbit.launchSelected();assertEquals("app.14",launched.get(1));orbit.page(1);assertEquals(0,orbit.currentPage());}
+ @Test public void iconPositionsFollowVideoTimeButSelectedTargetStaysStable(){orbit.videoFrame(0,10000,true);float x=ring().getChildAt(1).getTranslationX(),center=ring().getChildAt(0).getTranslationX();orbit.videoFrame(2500,10000,true);assertNotEquals(x,ring().getChildAt(1).getTranslationX(),1);assertEquals(center,ring().getChildAt(0).getTranslationX(),0);float stopped=ring().getChildAt(1).getTranslationX();orbit.videoFrame(0,10000,false);assertEquals(stopped,ring().getChildAt(1).getTranslationX(),0);}
+ @Test public void draggingRotatesTheNativeIcons(){orbit.videoFrame(0,10000,true);float old=ring().getChildAt(1).getTranslationX();long t=android.os.SystemClock.uptimeMillis();MotionEvent down=MotionEvent.obtain(t,t,MotionEvent.ACTION_DOWN,400,60,0),move=MotionEvent.obtain(t,t+30,MotionEvent.ACTION_MOVE,680,60,0),up=MotionEvent.obtain(t,t+60,MotionEvent.ACTION_UP,680,60,0);try{ring().dispatchTouchEvent(down);ring().dispatchTouchEvent(move);ring().dispatchTouchEvent(up);orbit.videoFrame(0,10000,true);assertNotEquals(old,ring().getChildAt(1).getTranslationX(),1);assertTrue(launched.isEmpty());}finally{down.recycle();move.recycle();up.recycle();}}
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.core.FocusEngineTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-10-26T04:58:53" hostname="12801ceb3edb" time="0.022">
+  <properties/>
+  <testcase name="midnightDoesNotGiveAnotherBudget" classname="es.foco.next.core.FocusEngineTest" time="0.002"/>
+  <testcase name="historyRetainsOnlySevenDays" classname="es.foco.next.core.FocusEngineTest" time="0.005"/>
+  <testcase name="exitingDoesNotResetHourOrBudget" classname="es.foco.next.core.FocusEngineTest" time="0.001"/>
+  <testcase name="monotonicDeadlineIgnoresWallClockChangesOnSameBoot" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="rebootRetainsDeadlineButNeverChargesUnknownUse" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="blockIsLoggedOncePerWindow" classname="es.foco.next.core.FocusEngineTest" time="0.001"/>
+  <testcase name="chosenAlternativeIsMeasuredWithoutSpendingLeisureBudget" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="hourExpiresOnceAndStartsFreshOnlyOnNextLeisureUse" classname="es.foco.next.core.FocusEngineTest" time="0.001"/>
+  <testcase name="callsPauseObservation" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="screenOffTimeDoesNotAccumulate" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="essentialAppsRemainOpenEvenWhenExplicitlySelected" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="disablingBeforeThresholdStopsMeasurement" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="disablingCannotCancelAnExistingLock" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="fiveMinutesAreSharedAndCannotBeExtendedBySwitchingApps" classname="es.foco.next.core.FocusEngineTest" time="0.001"/>
+  <testcase name="blockedTimeIsNotReportedAsConsumption" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="consumedNearEndBlocksOnlyUntilOriginalHourEnds" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="oneWarningAtFourMinutes" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="manualSensitiveAndReaderAreExcluded" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="transientAnchorIsNotReusableAfterForget" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <testcase name="delayedMissingCallbacksNeverInventMinutes" classname="es.foco.next.core.FocusEngineTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

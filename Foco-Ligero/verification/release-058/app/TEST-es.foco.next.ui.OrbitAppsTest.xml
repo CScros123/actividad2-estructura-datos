@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.ui.OrbitAppsTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-27T02:25:39" hostname="608e33640ca9" time="10.345">
+  <properties/>
+  <testcase name="realAppSelectionAndOpeningAreSeparateInteractions" classname="es.foco.next.ui.OrbitAppsTest" time="9.216"/>
+  <testcase name="pagingReachesEveryAppIncludingLastPartialPage" classname="es.foco.next.ui.OrbitAppsTest" time="0.309"/>
+  <testcase name="iconPositionsFollowVideoTimeButSelectedTargetStaysStable" classname="es.foco.next.ui.OrbitAppsTest" time="0.403"/>
+  <testcase name="draggingRotatesTheNativeIcons" classname="es.foco.next.ui.OrbitAppsTest" time="0.416"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

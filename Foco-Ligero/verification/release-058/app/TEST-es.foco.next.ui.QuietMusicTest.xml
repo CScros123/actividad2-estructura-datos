@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="es.foco.next.ui.QuietMusicTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-27T02:26:03" hostname="608e33640ca9" time="20.002">
+  <properties/>
+  <testcase name="muteSurvivesAnotherVisit" classname="es.foco.next.ui.QuietMusicTest" time="19.335"/>
+  <testcase name="focusLossStopsWithoutAutomaticallyRestarting" classname="es.foco.next.ui.QuietMusicTest" time="0.078"/>
+  <testcase name="deniedAudioFocusDoesNotPlay" classname="es.foco.next.ui.QuietMusicTest" time="0.08"/>
+  <testcase name="completionAlternatesTheTwoProvidedTracks" classname="es.foco.next.ui.QuietMusicTest" time="0.069"/>
+  <testcase name="callsPreventAutomaticPlayback" classname="es.foco.next.ui.QuietMusicTest" time="0.071"/>
+  <testcase name="blockUsesTemporaryExclusiveFocusWithoutChangingDeviceVolume" classname="es.foco.next.ui.QuietMusicTest" time="0.085"/>
+  <testcase name="respectsOtherPlayerOnEntryButIntervenesAtBlock" classname="es.foco.next.ui.QuietMusicTest" time="0.072"/>
+  <testcase name="surfacesShareOnePlayerWithoutRestarting" classname="es.foco.next.ui.QuietMusicTest" time="0.104"/>
+  <testcase name="autoplaysOnlyForVisibleOwnerAndStopsOnExit" classname="es.foco.next.ui.QuietMusicTest" time="0.105"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
