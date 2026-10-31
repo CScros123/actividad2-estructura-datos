@@ -4,9 +4,8 @@ import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.provider.Settings;
 import android.text.Editable;
@@ -14,7 +13,6 @@ import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
@@ -23,17 +21,18 @@ import es.foco.next.core.AppConfig;
 import es.foco.next.core.FocusEngine;
 import es.foco.next.core.FocusState;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
- * Pantalla de inicio del launcher: reloj, tiempo de ocio restante y todas las apps instaladas.
+ * Launcher minimalista: Inicio con reloj y favoritas, y un cajón de apps en texto.
  * Reutiliza el plan y el bloqueo existentes; no cambia cómo se mide ni cómo se bloquea.
  */
 final class LauncherHome {
   private LauncherHome() {}
+
+  static final int MAX_FAVORITES = 7;
 
   static final class App {
     final String pkg, label;
@@ -44,8 +43,6 @@ final class LauncherHome {
       this.component = component;
     }
   }
-
-  private static final Map<String, Drawable> icons = new HashMap<>();
 
   static List<App> installed(Context c) {
     List<App> apps = new ArrayList<>();
@@ -60,50 +57,89 @@ final class LauncherHome {
     return apps;
   }
 
-  /** Construye la cabecera con reloj y la lista de apps dentro de {@code body}. */
-  static void render(MainActivity a, LinearLayout body, TextView[] budgetOut) {
-    AppConfig config = a.repository.config();
+  // ---- Favoritas: lista ordenada en preferencias propias del launcher. ----
+  private static SharedPreferences prefs(Context c) {
+    return c.getSharedPreferences("foco-launcher", Context.MODE_PRIVATE);
+  }
 
-    LinearLayout clockBox = Design.column(a);
-    clockBox.setGravity(Gravity.CENTER_HORIZONTAL);
-    clockBox.setPadding(0, Design.dp(a, 12), 0, Design.dp(a, 20));
+  static List<String> favorites(Context c) {
+    String raw = prefs(c).getString("favorites", "");
+    List<String> out = new ArrayList<>();
+    if (!raw.isEmpty()) out.addAll(Arrays.asList(raw.split(",")));
+    return out;
+  }
+
+  private static void saveFavorites(Context c, List<String> pkgs) {
+    prefs(c).edit().putString("favorites", String.join(",", pkgs)).apply();
+  }
+
+  // ---- Inicio ----
+  /** Reloj, fecha, tiempo de ocio en una línea y favoritas. */
+  static void renderHome(MainActivity a, LinearLayout body, TextView[] budgetOut) {
+    body.setMinimumHeight(a.getResources().getDisplayMetrics().heightPixels * 2 / 3);
+
     TextClock clock = new TextClock(a);
     clock.setFormat24Hour("HH:mm");
     clock.setFormat12Hour("h:mm");
-    clock.setTextSize(64);
+    clock.setTextSize(68);
     clock.setTextColor(a.getColor(R.color.text_primary));
-    clock.setTypeface(android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL));
-    clockBox.addView(clock);
+    clock.setTypeface(android.graphics.Typeface.create("sans-serif-thin", android.graphics.Typeface.NORMAL));
+    clock.setPadding(0, Design.dp(a, 40), 0, 0);
+    clock.setOnClickListener(v -> openClockApp(a));
+    body.addView(clock);
+
     TextClock date = new TextClock(a);
     date.setFormat24Hour("EEEE, d 'de' MMMM");
     date.setFormat12Hour("EEEE, d 'de' MMMM");
     date.setTextSize(16);
     date.setTextColor(a.getColor(R.color.text_secondary));
-    clockBox.addView(date);
-    ImageView leaf = new ImageView(a);
-    leaf.setImageResource(R.drawable.leaf);
-    leaf.setColorFilter(a.getColor(R.color.copper));
-    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(Design.dp(a, 28), Design.dp(a, 28));
-    lp.topMargin = Design.dp(a, 10);
-    clockBox.addView(leaf, lp);
-    TextView calm = Design.text(a, "Respira. Elige con calma.", 14, false);
-    calm.setGravity(Gravity.CENTER);
-    clockBox.addView(calm);
-    body.addView(clockBox);
+    body.addView(date);
 
-    // Resumen del tiempo de ocio; MainActivity lo actualiza cada segundo.
-    LinearLayout time = Design.card(body, "");
-    TextView budget = Design.text(a, "", 20, true);
-    TextView window = Design.text(a, "", 14, false);
-    time.addView(budget);
-    time.addView(window);
+    TextView budget = Design.text(a, "", 13, false);
+    budget.setTextColor(a.getColor(R.color.copper));
+    budget.setPadding(0, Design.dp(a, 10), 0, 0);
+    body.addView(budget);
     budgetOut[0] = budget;
-    budgetOut[1] = window;
+    budgetOut[1] = null;
 
-    EditText search = Design.field(a, "Buscar app…", "", false);
+    LinearLayout favs = Design.column(a);
+    favs.setPadding(0, Design.dp(a, 56), 0, Design.dp(a, 24));
+    favs.setTag(FloatingLeaves.SHIELD);
+    body.addView(favs);
+    List<App> apps = installed(a);
+    AppConfig config = a.repository.config();
+    boolean any = false;
+    for (String pkg : favorites(a)) {
+      App app = find(apps, pkg);
+      if (app == null) continue;
+      favs.addView(textRow(a, app, config, 26));
+      any = true;
+    }
+    if (!any) {
+      TextView hint = Design.text(a, "Mantén pulsada una app en el cajón\npara añadirla aquí.", 15, false);
+      favs.addView(hint);
+    }
+
+    TextView drawer = Design.text(a, "︿  todas las apps", 13, false);
+    drawer.setGravity(Gravity.CENTER);
+    drawer.setPadding(0, Design.dp(a, 16), 0, Design.dp(a, 8));
+    drawer.setOnClickListener(v -> a.showDrawer());
+    body.addView(drawer, new LinearLayout.LayoutParams(-1, -2));
+
+    // Mantener pulsado el reloj abre el menú de Foco (Hoy, Mi plan, Ajustes).
+    clock.setOnLongClickListener(v -> {
+      a.showMenu();
+      return true;
+    });
+  }
+
+  // ---- Cajón ----
+  static void renderDrawer(MainActivity a, LinearLayout body) {
+    EditText search = Design.field(a, "Buscar…", "", false);
     search.setSingleLine(true);
     search.setTag(FloatingLeaves.SHIELD);
     LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1, -2);
+    sp.topMargin = Design.dp(a, 16);
     sp.bottomMargin = Design.dp(a, 12);
     body.addView(search, sp);
 
@@ -111,93 +147,73 @@ final class LauncherHome {
     list.setTag(FloatingLeaves.SHIELD);
     body.addView(list);
     List<App> apps = installed(a);
-    fill(a, list, apps, config, "");
+    fill(a, list, apps, a.repository.config(), "");
     search.addTextChangedListener(new TextWatcher() {
       @Override public void beforeTextChanged(CharSequence s, int st, int c, int af) {}
       @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
       @Override public void afterTextChanged(Editable s) {
-        fill(a, list, apps, a.repository.config(), s.toString());
+        String f = s.toString();
+        fill(a, list, apps, a.repository.config(), f);
+        // Si solo queda una app, Intro la abre directamente.
       }
+    });
+    search.setOnEditorActionListener((v, id, e) -> {
+      if (list.getChildCount() > 0 && list.getChildAt(0).hasOnClickListeners()) list.getChildAt(0).performClick();
+      return true;
     });
   }
 
   private static void fill(MainActivity a, LinearLayout list, List<App> apps, AppConfig config, String filter) {
     list.removeAllViews();
     String f = filter.trim().toLowerCase(Locale.ROOT);
-    boolean locked = a.repository.locked();
-    FocusState state = locked ? a.repository.state() : null;
     for (App app : apps) {
       if (!f.isEmpty() && !app.label.toLowerCase(Locale.ROOT).contains(f)) continue;
-      boolean ocio = config.watchedApps.contains(app.pkg);
-      boolean blocked = locked && ocio && state.lockedApps.contains(app.pkg);
-      list.addView(row(a, app, ocio, blocked));
+      list.addView(textRow(a, app, config, 20));
     }
     if (list.getChildCount() == 0) Design.note(list, "No hay apps con ese nombre.");
   }
 
-  private static View row(MainActivity a, App app, boolean ocio, boolean blocked) {
-    LinearLayout row = new LinearLayout(a);
-    row.setOrientation(LinearLayout.HORIZONTAL);
+  /** Una app como texto: sin iconos, como un launcher minimalista. */
+  private static View textRow(MainActivity a, App app, AppConfig config, int size) {
+    boolean ocio = config.watchedApps.contains(app.pkg);
+    boolean blocked = ocio && isBlocked(a, app.pkg);
+    TextView row = Design.text(a, app.label, size, false);
+    row.setTextColor(a.getColor(R.color.text_primary));
+    row.setTypeface(android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL));
+    row.setPadding(0, Design.dp(a, size > 22 ? 10 : 9), 0, Design.dp(a, size > 22 ? 10 : 9));
+    row.setMinHeight(Design.dp(a, 48));
     row.setGravity(Gravity.CENTER_VERTICAL);
-    row.setMinimumHeight(Design.dp(a, 56));
-    row.setPadding(Design.dp(a, 8), Design.dp(a, 6), Design.dp(a, 8), Design.dp(a, 6));
-    GradientDrawable bg = new GradientDrawable();
-    bg.setCornerRadius(Design.dp(a, 14));
-    bg.setColor(a.getColor(R.color.surface_raised));
-    bg.setAlpha(blocked ? 110 : 200);
-    row.setBackground(bg);
-    LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(-1, -2);
-    rp.bottomMargin = Design.dp(a, 6);
-    row.setLayoutParams(rp);
-
-    ImageView icon = new ImageView(a);
-    icon.setImageDrawable(icon(a, app.pkg));
-    if (blocked) icon.setAlpha(.4f);
-    row.addView(icon, new LinearLayout.LayoutParams(Design.dp(a, 40), Design.dp(a, 40)));
-
-    LinearLayout texts = Design.column(a);
-    texts.setPadding(Design.dp(a, 14), 0, 0, 0);
-    TextView name = Design.text(a, app.label, 16, true);
-    texts.addView(name);
-    if (blocked) texts.addView(Design.text(a, "Descansando · vuelve en " + minutesLeft(a) + " min", 12, false));
-    else if (ocio) texts.addView(Design.text(a, "Ocio · cuenta para tus 5 minutos", 12, false));
-    row.addView(texts, new LinearLayout.LayoutParams(0, -2, 1));
-
+    if (blocked) {
+      row.setAlpha(.38f);
+      row.setText(app.label + "   · descansando");
+    }
     row.setContentDescription(app.label + (blocked ? ", bloqueada" : ocio ? ", app de ocio" : ""));
     row.setOnClickListener(v -> open(a, app, blocked));
     row.setOnLongClickListener(v -> {
       options(a, app, ocio);
       return true;
     });
-    UiMotion.press(row);
     return row;
+  }
+
+  private static App find(List<App> apps, String pkg) {
+    for (App app : apps) if (app.pkg.equals(pkg)) return app;
+    return null;
+  }
+
+  private static boolean isBlocked(MainActivity a, String pkg) {
+    if (!a.repository.locked()) return false;
+    FocusState s = a.repository.state();
+    return s.lockedApps.contains(pkg);
   }
 
   private static long minutesLeft(MainActivity a) {
     return (a.repository.remaining() + 59_999) / 60_000;
   }
 
-  private static Drawable icon(Context c, String pkg) {
-    Drawable d = icons.get(pkg);
-    if (d != null) return d;
-    try {
-      d = c.getPackageManager().getApplicationIcon(pkg);
-    } catch (Exception e) {
-      d = c.getDrawable(R.drawable.leaf);
-    }
-    if (icons.size() > 400) icons.clear();
-    icons.put(pkg, d);
-    return d;
-  }
-
-  static void clearIcons() {
-    icons.clear();
-  }
-
   private static void open(MainActivity a, App app, boolean blocked) {
     if (blocked) {
-      a.message("Tus apps de ocio descansan. Vuelven en " + minutesLeft(a)
-          + " min. Mientras, ¿algo tranquilo?");
+      a.message("Tus apps de ocio descansan. Vuelven en " + minutesLeft(a) + " min.");
       return;
     }
     Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
@@ -210,11 +226,29 @@ final class LauncherHome {
     }
   }
 
+  private static void openClockApp(MainActivity a) {
+    try {
+      a.startActivity(new Intent(android.provider.AlarmClock.ACTION_SHOW_ALARMS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    } catch (RuntimeException ignored) {
+    }
+  }
+
   private static void options(MainActivity a, App app, boolean ocio) {
-    boolean canBeOcio = !FocusEngine.essential(a.repository.config(), app.pkg);
     List<String> labels = new ArrayList<>();
     List<Runnable> actions = new ArrayList<>();
-    if (ocio || canBeOcio) {
+    List<String> favs = favorites(a);
+    boolean fav = favs.contains(app.pkg);
+    if (fav || favs.size() < MAX_FAVORITES) {
+      labels.add(fav ? "Quitar de Inicio" : "Añadir a Inicio");
+      actions.add(() -> {
+        List<String> next = favorites(a);
+        if (fav) next.remove(app.pkg);
+        else next.add(app.pkg);
+        saveFavorites(a, next);
+        a.render();
+      });
+    }
+    if (ocio || !FocusEngine.essential(a.repository.config(), app.pkg)) {
       labels.add(ocio ? "Quitar de mis apps de ocio" : "Marcar como app de ocio");
       actions.add(() -> a.edit(() -> a.change(n -> {
         if (ocio) n.watchedApps.remove(app.pkg);

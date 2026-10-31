@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 public final class MainActivity extends Activity {
   Repository repository;
   LinearLayout body,navigation;
-  static final int HOME=3;
+  static final int HOME=3,DRAWER=4;
   private static final int[] ORDER={HOME,0,1,2};
   private int page=HOME;
   private boolean resumed;
@@ -43,7 +43,7 @@ public final class MainActivity extends Activity {
   private android.view.View dayCard;
   int pendingReminderMinute=-1;
   private final Handler main=new Handler(Looper.getMainLooper());
-  private final BroadcastReceiver packageChanges=new BroadcastReceiver(){@Override public void onReceive(Context c,Intent i){LauncherHome.clearIcons();if(resumed&&repository!=null&&page==HOME)render();}};
+  private final BroadcastReceiver packageChanges=new BroadcastReceiver(){@Override public void onReceive(Context c,Intent i){if(resumed&&repository!=null&&(page==HOME||page==DRAWER))render();}};
   private final Runnable update=new Runnable(){public void run(){if(resumed&&(page==0||page==HOME)){updateTime();main.postDelayed(this,1000);}}};
   @Override protected void attachBaseContext(Context base){appliedNight=SceneTheme.night();super.attachBaseContext(base.createConfigurationContext(SceneTheme.override(base)));}
   @Override public void onCreate(Bundle b){
@@ -56,7 +56,7 @@ public final class MainActivity extends Activity {
     IntentFilter apps=new IntentFilter();apps.addAction(Intent.ACTION_PACKAGE_ADDED);apps.addAction(Intent.ACTION_PACKAGE_REMOVED);apps.addAction(Intent.ACTION_PACKAGE_CHANGED);apps.addDataScheme("package");if(Build.VERSION.SDK_INT>=33)registerReceiver(packageChanges,apps,Context.RECEIVER_NOT_EXPORTED);else registerReceiver(packageChanges,apps);
     body.addOnLayoutChangeListener((v,l,t,r,bottom,ol,ot,or,ob)->{ambient.setScroll(((ScrollView)findViewById(R.id.page_scroll)).getScrollY());floatingLeaves.rebuildMask();revealCards.run();});
     ((ScrollView)findViewById(R.id.page_scroll)).setOnScrollChangeListener((v,x,y,ox,oy)->{ambient.setScroll(y);floatingLeaves.rebuildMask();revealCards.run();});
-    if(b!=null){page=Math.max(0,Math.min(HOME,b.getInt("page",HOME)));pendingReminderMinute=b.getInt("pendingReminder",-1);}
+    if(b!=null){page=Math.max(0,Math.min(DRAWER,b.getInt("page",HOME)));pendingReminderMinute=b.getInt("pendingReminder",-1);}
     try{
       // Old periodic DNS jobs/notifications belong to this package and have no role in Lite.
       if(getPreferences(MODE_PRIVATE).getInt("cleanup",0)<52){
@@ -76,27 +76,55 @@ public final class MainActivity extends Activity {
   void render(){
     UiMotion.stop(body);UiMotion.stop(navigation);body.removeCallbacks(revealCards);ambient.detail(null);body.removeAllViews();navigation.removeAllViews();budgetText=null;windowText=null;progress=null;musicButton=null;musicCaption=null;
     String[] names={"Hoy","Mi plan","Ajustes","Inicio"};int[] icons={R.drawable.tab_home,R.drawable.tab_rules,R.drawable.tab_settings,R.drawable.leaf};
-    ((TextView)findViewById(R.id.page_title)).setText(page==HOME?"":names[page]);
-    ((TextView)findViewById(R.id.page_title)).setVisibility(page==HOME?android.view.View.GONE:android.view.View.VISIBLE);
+    boolean launcher=page==HOME||page==DRAWER;body.setMinimumHeight(0);
+    if(page==HOME)body.setOnLongClickListener(v->{showMenu();return true;});else{body.setOnLongClickListener(null);body.setLongClickable(false);}
+    ((TextView)findViewById(R.id.page_title)).setText(launcher?"":names[page]);
+    ((TextView)findViewById(R.id.page_title)).setVisibility(launcher?android.view.View.GONE:android.view.View.VISIBLE);
+    // Minimalista: en Inicio y en el cajón no hay barra ni botones; el menú vive en una pulsación larga.
+    navigation.setVisibility(launcher?android.view.View.GONE:android.view.View.VISIBLE);
+    energyButton.setVisibility(launcher?android.view.View.GONE:android.view.View.VISIBLE);
     for(int i:ORDER){
       final int p=i;Button b=Design.button(this,names[i],false,()->{if(page==p)return;page=p;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();});b.setTextSize(14);b.setPadding(0,Design.dp(this,8),0,Design.dp(this,8));
       var icon=getDrawable(icons[i]).mutate();icon.setTint(getColor(i==page?R.color.copper:R.color.text_secondary));icon.setBounds(0,0,Design.dp(this,22),Design.dp(this,22));b.setCompoundDrawables(null,icon,null,null);b.setSelected(i==page);navigation.addView(b,new LinearLayout.LayoutParams(0,-2,1));
     }
     if(android.os.Build.VERSION.SDK_INT>=28)((TextView)findViewById(R.id.page_title)).setAccessibilityHeading(true);
-    if(page==HOME)home();else if(page==0)today();else if(page==1)plan();else settings();
+    if(page==HOME)home();else if(page==DRAWER)LauncherHome.renderDrawer(this,body);else if(page==0)today();else if(page==1)plan();else settings();
     if(page==0&&dayCard!=null&&getIntent().getBooleanExtra("open_day",false)){
       dayCard.post(()->{((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,dayCard.getTop());getIntent().removeExtra("open_day");});
     }
     body.post(revealCards);
-    if(UiMotion.allowed(this)){int at=0;for(int k=0;k<ORDER.length;k++)if(ORDER[k]==page)at=k;android.view.View selected=navigation.getChildAt(at);selected.setScaleX(.94f);selected.setScaleY(.94f);selected.animate().scaleX(1).scaleY(1).setDuration(280).start();}
+    if(UiMotion.allowed(this)&&!launcher){int at=0;for(int k=0;k<ORDER.length;k++)if(ORDER[k]==page)at=k;android.view.View selected=navigation.getChildAt(at);selected.setScaleX(.94f);selected.setScaleY(.94f);selected.animate().scaleX(1).scaleY(1).setDuration(280).start();}
     main.removeCallbacks(update);if(resumed&&(page==0||page==HOME))main.postDelayed(update,1000);
+    if(page==HOME&&!getPreferences(MODE_PRIVATE).getBoolean("askedHome",false)&&!isDefaultHome()){getPreferences(MODE_PRIVATE).edit().putBoolean("askedHome",true).apply();body.post(this::askDefaultHome);}
   }
   private void scheduleScene(){main.removeCallbacks(sceneBoundary);if(resumed)main.postDelayed(sceneBoundary,SceneTheme.untilBoundary());}
   private void refreshMusicControl(){if(resumed&&music!=null){if(musicButton!=null)musicButton.setText(music.button());if(musicCaption!=null)musicCaption.setText(music.caption());}}
   private void home(){
-    TextView[] out=new TextView[2];LauncherHome.render(this,body,out);budgetText=out[0];windowText=out[1];
-    if(!FocusAccessibilityService.connected())body.addView(Design.button(this,"Activar medición y bloqueo",true,()->open(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))),1);
+    TextView[] out=new TextView[2];LauncherHome.renderHome(this,body,out);budgetText=out[0];windowText=out[1];
+    if(!FocusAccessibilityService.connected())body.addView(Design.button(this,"Activar medición y bloqueo",true,()->open(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))),3);
+    if(!isDefaultHome())body.addView(Design.button(this,"Usar Foco como pantalla de inicio",false,this::askDefaultHome),3);
     updateTime();
+  }
+  void showDrawer(){page=DRAWER;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();}
+  void goHome(){page=HOME;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();}
+  /** Un solo menú reúne Hoy, Mi plan y Ajustes. */
+  void showMenu(){
+    String[] items={"Hoy · tiempo y semana","Mi plan · apps de ocio","Ajustes","Usar Foco como pantalla de inicio"};
+    new AlertDialog.Builder(this).setTitle("Foco").setItems(items,(d,w)->{if(w==3)askDefaultHome();else{page=w;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();}}).setNegativeButton(R.string.cancel,null).show();
+  }
+  boolean isDefaultHome(){
+    try{android.content.pm.ResolveInfo r=getPackageManager().resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),android.content.pm.PackageManager.MATCH_DEFAULT_ONLY);
+      return r!=null&&r.activityInfo!=null&&getPackageName().equals(r.activityInfo.packageName);}catch(RuntimeException e){return false;}
+  }
+  /** Pide a Android que Foco sustituya por completo al launcher actual. */
+  void askDefaultHome(){
+    if(isDefaultHome()){message("Foco ya es tu pantalla de inicio.");return;}
+    if(Build.VERSION.SDK_INT>=29){
+      try{android.app.role.RoleManager roles=getSystemService(android.app.role.RoleManager.class);
+        if(roles!=null&&roles.isRoleAvailable(android.app.role.RoleManager.ROLE_HOME)&&!roles.isRoleHeld(android.app.role.RoleManager.ROLE_HOME)){startActivityForResult(roles.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME),20);return;}
+      }catch(RuntimeException ignored){}
+    }
+    try{startActivity(new Intent(Settings.ACTION_HOME_SETTINGS));}catch(RuntimeException e){open(new Intent(Settings.ACTION_SETTINGS));}
   }
   private void today(){
     AppConfig c=repository.config();
@@ -133,6 +161,8 @@ public final class MainActivity extends Activity {
     long used=repository.liveUsed(),left=repository.remaining();boolean locked=repository.locked();
     budgetText.setText(Design.duration(this,Math.max(0,FocusEngine.BUDGET-used))+" disponibles");if(progress!=null)progress.setProgress((int)(used/1000));
     String state=!repository.config().enabled?"Plan desactivado":!FocusAccessibilityService.connected()?"Activa Accesibilidad para medir":locked?"Ocio bloqueado": "Ocio disponible";
+    if(page==HOME){budgetText.setText(!repository.config().enabled||!FocusAccessibilityService.connected()?state:locked?"Ocio en pausa · vuelve en "+((left+59999)/60000)+" min":"Ocio · "+Design.duration(this,Math.max(0,FocusEngine.BUDGET-used)));return;}
+    if(windowText==null)return;
     windowText.setText(state+(left>0?" · la ventana termina en "+((left+59999)/60000)+" min":" · sin ventana en curso"));
   }
   private void plan(){
@@ -197,10 +227,26 @@ public final class MainActivity extends Activity {
   NotebookStore notebook(){if(notebook==null)notebook=new NotebookStore(this);return notebook;}
   void exportNotes(){openForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/plain").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_TITLE,"Foco-apuntes-"+LocalDate.now()+".txt"),13);}
   /** Como launcher, Atrás vuelve a Inicio y nunca cierra la pantalla principal. */
-  @Override public void onBackPressed(){if(repository!=null&&page!=HOME){page=HOME;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();}}
+  @Override public void onBackPressed(){if(repository!=null&&page!=HOME)goHome();}
+  // Deslizar hacia arriba en Inicio abre el cajón; hacia abajo en lo alto del cajón vuelve a Inicio.
+  private android.view.GestureDetector swipes;
+  @Override public boolean dispatchTouchEvent(android.view.MotionEvent e){
+    if(repository!=null&&(page==HOME||page==DRAWER)){
+      if(swipes==null)swipes=new android.view.GestureDetector(this,new android.view.GestureDetector.SimpleOnGestureListener(){
+        @Override public boolean onFling(android.view.MotionEvent d,android.view.MotionEvent u,float vx,float vy){
+          if(d==null||Math.abs(vy)<Math.abs(vx)*1.5f||Math.abs(vy)<900)return false;
+          if(page==HOME&&vy<0){showDrawer();return true;}
+          if(page==DRAWER&&vy>0&&((ScrollView)findViewById(R.id.page_scroll)).getScrollY()==0){goHome();return true;}
+          return false;}
+        @Override public void onLongPress(android.view.MotionEvent m){}
+      });
+      swipes.onTouchEvent(e);
+    }
+    return super.dispatchTouchEvent(e);
+  }
   @Override protected void onDestroy(){try{unregisterReceiver(packageChanges);}catch(RuntimeException ignored){}super.onDestroy();}
   @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);
-    if(repository!=null&&intent.hasCategory(Intent.CATEGORY_HOME)&&!intent.getBooleanExtra("open_day",false)){page=HOME;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();return;}if(repository!=null&&intent.getBooleanExtra("open_day",false)){page=0;render();}}
+    if(repository!=null&&intent.hasCategory(Intent.CATEGORY_HOME)&&!intent.getBooleanExtra("open_day",false)){goHome();return;}if(repository!=null&&intent.getBooleanExtra("open_day",false)){page=0;render();}}
   @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] results){
     super.onRequestPermissionsResult(request,permissions,results);
     if(request==52){
