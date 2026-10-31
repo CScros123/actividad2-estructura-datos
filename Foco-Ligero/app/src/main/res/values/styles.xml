@@ -1,7 +1,7 @@
 <resources>
- <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+ <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
   <item name="android:fontFamily">sans-serif</item>
-  <item name="android:windowLightStatusBar">true</item>
+  <item name="android:windowLightStatusBar">false</item>
   <item name="android:statusBarColor">@color/surface</item>
   <item name="android:navigationBarColor">@color/surface_raised</item>
   <item name="android:windowBackground">@color/surface</item>
@@ -10,7 +10,7 @@
   <item name="android:textColorSecondary">@color/text_secondary</item>
   <item name="android:alertDialogTheme">@style/FocusDialog</item>
  </style>
- <style name="FocusDialog" parent="android:style/Theme.Material.Light.Dialog.Alert">
+ <style name="FocusDialog" parent="android:style/Theme.Material.Dialog.Alert">
   <item name="android:colorAccent">@color/copper</item>
   <item name="android:fontFamily">sans-serif</item>
  </style>

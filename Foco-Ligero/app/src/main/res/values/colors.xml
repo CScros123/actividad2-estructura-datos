@@ -1,5 +1,6 @@
 <resources>
- <color name="surface">#F2F5ED</color><color name="surface_raised">#FCFDF8</color><color name="text_primary">#243C31</color><color name="text_secondary">#53685B</color>
- <color name="copper">#38674D</color><color name="copper_dark">#38674D</color><color name="copper_deep">#DFEBDD</color>
- <color name="outline">#D7E2D1</color><color name="on_accent">#FCFDF8</color>
- <color name="hero_start">#E4EEDC</color><color name="hero_end">#FCFDF8</color></resources>
+ <!-- Bosque: verde oscuro sereno también de día. -->
+ <color name="surface">#0F2419</color><color name="surface_raised">#173324</color><color name="text_primary">#EEF5E8</color><color name="text_secondary">#B7CDB8</color>
+ <color name="copper">#A8D5A2</color><color name="copper_dark">#3E7A55</color><color name="copper_deep">#21402D</color>
+ <color name="outline">#2E5039</color><color name="on_accent">#F4FAEF</color>
+ <color name="hero_start">#1E3F2B</color><color name="hero_end">#173324</color></resources>

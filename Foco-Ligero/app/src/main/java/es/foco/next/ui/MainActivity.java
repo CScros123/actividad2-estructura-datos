@@ -18,11 +18,13 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
 
-/** Three destinations: your time, your intention, essential settings. No perpetual UI timer. */
+/** Launcher home plus three destinations: your time, your intention, essential settings. */
 public final class MainActivity extends Activity {
   Repository repository;
   LinearLayout body,navigation;
-  private int page;
+  static final int HOME=3;
+  private static final int[] ORDER={HOME,0,1,2};
+  private int page=HOME;
   private boolean resumed;
   private AmbientView ambient;
   private FloatingLeaves floatingLeaves;
@@ -41,7 +43,8 @@ public final class MainActivity extends Activity {
   private android.view.View dayCard;
   int pendingReminderMinute=-1;
   private final Handler main=new Handler(Looper.getMainLooper());
-  private final Runnable update=new Runnable(){public void run(){if(resumed&&page==0){updateTime();main.postDelayed(this,1000);}}};
+  private final BroadcastReceiver packageChanges=new BroadcastReceiver(){@Override public void onReceive(Context c,Intent i){LauncherHome.clearIcons();if(resumed&&repository!=null&&page==HOME)render();}};
+  private final Runnable update=new Runnable(){public void run(){if(resumed&&(page==0||page==HOME)){updateTime();main.postDelayed(this,1000);}}};
   @Override protected void attachBaseContext(Context base){appliedNight=SceneTheme.night();super.attachBaseContext(base.createConfigurationContext(SceneTheme.override(base)));}
   @Override public void onCreate(Bundle b){
     setTheme(R.style.AppTheme);
@@ -50,9 +53,10 @@ public final class MainActivity extends Activity {
     energyButton.setOnClickListener(v->ambient.toggleSaving());UiMotion.press(energyButton);
     ambient.onPolicyChanged(()->{energyButton.setText(ambient.saving()?"Ahorro de energía · activado":"Ahorro de energía · desactivado");energyButton.setSelected(ambient.saving());if(!UiMotion.allowed(this)){UiMotion.stop(body);UiMotion.stop(navigation);UiMotion.stop(energyButton);}});
     ambient.refresh();
+    IntentFilter apps=new IntentFilter();apps.addAction(Intent.ACTION_PACKAGE_ADDED);apps.addAction(Intent.ACTION_PACKAGE_REMOVED);apps.addAction(Intent.ACTION_PACKAGE_CHANGED);apps.addDataScheme("package");if(Build.VERSION.SDK_INT>=33)registerReceiver(packageChanges,apps,Context.RECEIVER_NOT_EXPORTED);else registerReceiver(packageChanges,apps);
     body.addOnLayoutChangeListener((v,l,t,r,bottom,ol,ot,or,ob)->{ambient.setScroll(((ScrollView)findViewById(R.id.page_scroll)).getScrollY());floatingLeaves.rebuildMask();revealCards.run();});
     ((ScrollView)findViewById(R.id.page_scroll)).setOnScrollChangeListener((v,x,y,ox,oy)->{ambient.setScroll(y);floatingLeaves.rebuildMask();revealCards.run();});
-    if(b!=null){page=Math.max(0,Math.min(2,b.getInt("page")));pendingReminderMinute=b.getInt("pendingReminder",-1);}
+    if(b!=null){page=Math.max(0,Math.min(HOME,b.getInt("page",HOME)));pendingReminderMinute=b.getInt("pendingReminder",-1);}
     try{
       // Old periodic DNS jobs/notifications belong to this package and have no role in Lite.
       if(getPreferences(MODE_PRIVATE).getInt("cleanup",0)<52){
@@ -71,29 +75,35 @@ public final class MainActivity extends Activity {
   @Override protected void onSaveInstanceState(Bundle b){super.onSaveInstanceState(b);b.putInt("page",page);b.putInt("pendingReminder",pendingReminderMinute);}
   void render(){
     UiMotion.stop(body);UiMotion.stop(navigation);body.removeCallbacks(revealCards);ambient.detail(null);body.removeAllViews();navigation.removeAllViews();budgetText=null;windowText=null;progress=null;musicButton=null;musicCaption=null;
-    String[] names={"Hoy","Mi plan","Ajustes"};int[] icons={R.drawable.tab_home,R.drawable.tab_rules,R.drawable.tab_settings};
-    ((TextView)findViewById(R.id.page_title)).setText(names[page]);
-    for(int i=0;i<3;i++){
+    String[] names={"Hoy","Mi plan","Ajustes","Inicio"};int[] icons={R.drawable.tab_home,R.drawable.tab_rules,R.drawable.tab_settings,R.drawable.leaf};
+    ((TextView)findViewById(R.id.page_title)).setText(page==HOME?"":names[page]);
+    ((TextView)findViewById(R.id.page_title)).setVisibility(page==HOME?android.view.View.GONE:android.view.View.VISIBLE);
+    for(int i:ORDER){
       final int p=i;Button b=Design.button(this,names[i],false,()->{if(page==p)return;page=p;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();});b.setTextSize(14);b.setPadding(0,Design.dp(this,8),0,Design.dp(this,8));
       var icon=getDrawable(icons[i]).mutate();icon.setTint(getColor(i==page?R.color.copper:R.color.text_secondary));icon.setBounds(0,0,Design.dp(this,22),Design.dp(this,22));b.setCompoundDrawables(null,icon,null,null);b.setSelected(i==page);navigation.addView(b,new LinearLayout.LayoutParams(0,-2,1));
     }
     if(android.os.Build.VERSION.SDK_INT>=28)((TextView)findViewById(R.id.page_title)).setAccessibilityHeading(true);
-    if(page==0)today();else if(page==1)plan();else settings();
+    if(page==HOME)home();else if(page==0)today();else if(page==1)plan();else settings();
     if(page==0&&dayCard!=null&&getIntent().getBooleanExtra("open_day",false)){
       dayCard.post(()->{((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,dayCard.getTop());getIntent().removeExtra("open_day");});
     }
     body.post(revealCards);
-    if(UiMotion.allowed(this)){android.view.View selected=navigation.getChildAt(page);selected.setScaleX(.94f);selected.setScaleY(.94f);selected.animate().scaleX(1).scaleY(1).setDuration(280).start();}
-    main.removeCallbacks(update);if(resumed&&page==0)main.postDelayed(update,1000);
+    if(UiMotion.allowed(this)){int at=0;for(int k=0;k<ORDER.length;k++)if(ORDER[k]==page)at=k;android.view.View selected=navigation.getChildAt(at);selected.setScaleX(.94f);selected.setScaleY(.94f);selected.animate().scaleX(1).scaleY(1).setDuration(280).start();}
+    main.removeCallbacks(update);if(resumed&&(page==0||page==HOME))main.postDelayed(update,1000);
   }
   private void scheduleScene(){main.removeCallbacks(sceneBoundary);if(resumed)main.postDelayed(sceneBoundary,SceneTheme.untilBoundary());}
   private void refreshMusicControl(){if(resumed&&music!=null){if(musicButton!=null)musicButton.setText(music.button());if(musicCaption!=null)musicCaption.setText(music.caption());}}
+  private void home(){
+    TextView[] out=new TextView[2];LauncherHome.render(this,body,out);budgetText=out[0];windowText=out[1];
+    if(!FocusAccessibilityService.connected())body.addView(Design.button(this,"Activar medición y bloqueo",true,()->open(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))),1);
+    updateTime();
+  }
   private void today(){
     AppConfig c=repository.config();
     Design.note(body,SceneTheme.night()?"Una noche para bajar el ritmo":"Un día para descubrir algo bueno");
     LinearLayout hero=Design.card(body,"Haz espacio para lo que te importa");hero.setBackgroundResource(R.drawable.focus_card);
     TerraceView landscape=new TerraceView(this);ambient.detail(landscape);
-    android.graphics.drawable.GradientDrawable rounded=new android.graphics.drawable.GradientDrawable();rounded.setColor(0xFFE4EEDC);rounded.setCornerRadius(Design.dp(this,20));landscape.setBackground(rounded);landscape.setClipToOutline(true);
+    android.graphics.drawable.GradientDrawable rounded=new android.graphics.drawable.GradientDrawable();rounded.setColor(getColor(R.color.hero_start));rounded.setCornerRadius(Design.dp(this,20));landscape.setBackground(rounded);landscape.setClipToOutline(true);
     hero.addView(landscape,new LinearLayout.LayoutParams(-1,Design.dp(this,170)));Design.gap(hero,16);
     hero.addView(Design.text(this,c.intention,27,true));
     if(!c.returnApp.isEmpty())hero.addView(Design.button(this,"Empezar · "+AppPicker.label(this,c.returnApp),true,()->launch(c.returnApp)));
@@ -121,7 +131,7 @@ public final class MainActivity extends Activity {
   private void updateTime(){
     if(budgetText==null)return;
     long used=repository.liveUsed(),left=repository.remaining();boolean locked=repository.locked();
-    budgetText.setText(Design.duration(this,Math.max(0,FocusEngine.BUDGET-used))+" disponibles");progress.setProgress((int)(used/1000));
+    budgetText.setText(Design.duration(this,Math.max(0,FocusEngine.BUDGET-used))+" disponibles");if(progress!=null)progress.setProgress((int)(used/1000));
     String state=!repository.config().enabled?"Plan desactivado":!FocusAccessibilityService.connected()?"Activa Accesibilidad para medir":locked?"Ocio bloqueado": "Ocio disponible";
     windowText.setText(state+(left>0?" · la ventana termina en "+((left+59999)/60000)+" min":" · sin ventana en curso"));
   }
@@ -176,7 +186,7 @@ public final class MainActivity extends Activity {
     }catch(RuntimeException ignored){}
     return "El DNS privado no figura activo en la red actual.";
   }
-  private void edit(Runnable action){FocusAccessibilityService.checkpoint();if(repository.locked())message("Tu plan se puede cambiar al terminar esta ventana.");else action.run();}
+  void edit(Runnable action){FocusAccessibilityService.checkpoint();if(repository.locked())message("Tu plan se puede cambiar al terminar esta ventana.");else action.run();}
   void change(Consumer<AppConfig> action){
     FocusAccessibilityService.checkpoint();try{AppConfig c=repository.config();action.accept(c);repository.saveConfig(c);render();}catch(RuntimeException e){message(e.getMessage());}
   }
@@ -186,7 +196,11 @@ public final class MainActivity extends Activity {
   void message(String text){Toast.makeText(this,text==null?"No se pudo guardar el cambio":text,Toast.LENGTH_LONG).show();}
   NotebookStore notebook(){if(notebook==null)notebook=new NotebookStore(this);return notebook;}
   void exportNotes(){openForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT).setType("text/plain").addCategory(Intent.CATEGORY_OPENABLE).putExtra(Intent.EXTRA_TITLE,"Foco-apuntes-"+LocalDate.now()+".txt"),13);}
-  @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);if(repository!=null&&intent.getBooleanExtra("open_day",false)){page=0;render();}}
+  /** Como launcher, Atrás vuelve a Inicio y nunca cierra la pantalla principal. */
+  @Override public void onBackPressed(){if(repository!=null&&page!=HOME){page=HOME;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();}}
+  @Override protected void onDestroy(){try{unregisterReceiver(packageChanges);}catch(RuntimeException ignored){}super.onDestroy();}
+  @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);
+    if(repository!=null&&intent.hasCategory(Intent.CATEGORY_HOME)&&!intent.getBooleanExtra("open_day",false)){page=HOME;((ScrollView)findViewById(R.id.page_scroll)).scrollTo(0,0);render();return;}if(repository!=null&&intent.getBooleanExtra("open_day",false)){page=0;render();}}
   @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] results){
     super.onRequestPermissionsResult(request,permissions,results);
     if(request==52){

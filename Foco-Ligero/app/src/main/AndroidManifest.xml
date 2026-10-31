@@ -10,7 +10,11 @@
   <intent><action android:name="android.intent.action.DIAL"/><data android:scheme="tel"/></intent>
  </queries>
  <application android:icon="@drawable/ic_launcher" android:allowBackup="false" android:label="@string/app_name" android:theme="@style/AppTheme" android:supportsRtl="true" android:usesCleartextTraffic="false">
-  <activity android:name=".ui.MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
+  <activity android:name=".ui.MainActivity" android:exported="true" android:launchMode="singleTask" android:stateNotNeeded="true" android:clearTaskOnLaunch="true" android:resizeableActivity="true" android:windowSoftInputMode="adjustPan">
+   <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+   <!-- Foco también puede ser la pantalla de inicio (launcher) del teléfono. -->
+   <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.HOME"/><category android:name="android.intent.category.DEFAULT"/></intent-filter>
+  </activity>
   <service android:name=".runtime.FocusAccessibilityService" android:exported="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:label="@string/app_name"><intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter><meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility"/></service>
   <service android:name=".runtime.CalmAudioService" android:exported="false" android:foregroundServiceType="mediaPlayback"/>
   <receiver android:name=".runtime.DailyReminder" android:exported="false"><intent-filter>

@@ -57,21 +57,21 @@ public final class AmbientView extends View {
     super.onDraw(canvas);float w=getWidth()/density,h=getHeight()/density;canvas.save();canvas.scale(density,density);
     boolean move=running;double t=sceneTime;if(move){t=SystemClock.uptimeMillis()/1000.0;sceneTime=t;}
     double breeze=wind(t)*(quiet?.45:1)*(intensity==0?.8:intensity==2?2:1.3);
-    color(night?0xFF050E13:0xFFE4F0EB);canvas.drawRect(0,0,w,h,paint);
+    color(night?0xFF050E13:0xFF0F2419);canvas.drawRect(0,0,w,h,paint);
     // Distant clouds: slow drift, independent silhouettes, no large translucent screen overlay.
-    color(night?0x163E6571:0x98FFFFFF);
+    color(night?0x163E6571:0x22CFE8D2);
     for(int i=0;i<5;i++){float x=(float)((i*w/4+t*(.9+i*.14))%(w+130))-65,y=70+i%3*55;canvas.drawOval(x-42,y-11,x+58,y+13,paint);canvas.drawOval(x-15,y-24,x+25,y+8,paint);}
     float par=depth?Math.min(14,scroll/density*.018f):0;
-    color(night?0xFF102B2C:0xFFC3D8CE);path.reset();path.moveTo(0,h*.43f-par*.2f);path.cubicTo(w*.3f,h*.22f,w*.42f,h*.54f,w,h*.32f);path.lineTo(w,h);path.lineTo(0,h);path.close();canvas.drawPath(path,paint);
-    color(night?0xFF142E27:0xFFB0CAB8);path.reset();path.moveTo(0,h*.58f-par*.4f);path.cubicTo(w*.4f,h*.36f,w*.65f,h*.65f,w,h*.47f);path.lineTo(w,h);path.lineTo(0,h);path.close();canvas.drawPath(path,paint);
+    color(night?0xFF102B2C:0xFF16321F);path.reset();path.moveTo(0,h*.43f-par*.2f);path.cubicTo(w*.3f,h*.22f,w*.42f,h*.54f,w,h*.32f);path.lineTo(w,h);path.lineTo(0,h);path.close();canvas.drawPath(path,paint);
+    color(night?0xFF142E27:0xFF1C3E28);path.reset();path.moveTo(0,h*.58f-par*.4f);path.cubicTo(w*.4f,h*.36f,w*.65f,h*.65f,w,h*.47f);path.lineTo(w,h);path.lineTo(0,h);path.close();canvas.drawPath(path,paint);
     // Terrace and grasses stay at the edges, leaving all text and touch targets clear.
-    color(night?0xFF172620:0xFFD3DEC9);canvas.drawRect(0,h*.85f,w,h,paint);
-    paint.setStrokeWidth(1.3f);paint.setStyle(Paint.Style.STROKE);paint.setColor(night?0x884C775C:0x995C8562);
+    color(night?0xFF172620:0xFF14301F);canvas.drawRect(0,h*.85f,w,h,paint);
+    paint.setStrokeWidth(1.3f);paint.setStyle(Paint.Style.STROKE);paint.setColor(night?0x884C775C:0x9970A877);
     for(int i=0;i<30;i++){float x=i<15?i*1.5f:w-(i-15)*1.5f;float len=25+(i*17%63),sway=(float)(Math.sin(t*.7+i*1.7)*breeze*12);path.reset();path.moveTo(x,h);path.quadTo(x+sway,h-len*.6f,x+sway*1.8f,h-len);canvas.drawPath(path,paint);}
     paint.setStyle(Paint.Style.FILL);
     // Nearby leaf clusters. Soft translucent silhouettes rather than a costly full-screen blur.
-    for(int i=0;i<16;i++){float x=i<8?8:w-8,y=100+(i%8)*67-par;float sway=(float)(Math.sin(t*.48+i*2.1)*breeze*11);canvas.save();canvas.translate(x+sway,y);canvas.rotate((i<8?-35:35)+(float)Math.sin(t*.43+i)*7);color(night?0x623B694C:0x6651805A);canvas.drawOval(-12,-5,12,5,paint);color(night?0x193B694C:0x1951805A);canvas.drawOval(-14,-7,14,7,paint);canvas.restore();}
-    if(move&&leaves){for(int i=0;i<3;i++){double cycle=t+i*43;float y=(float)((cycle*8)%(h+180))-90;float x=8+(float)((Math.sin(cycle*.18)+1)*6);if(i%2==1)x=w-x;canvas.save();canvas.translate(x,y);canvas.rotate((float)cycle*13);color(night?0x805A8053:0x90749A63);canvas.drawOval(-4,-1.5f,4,1.5f,paint);canvas.restore();}}
+    for(int i=0;i<16;i++){float x=i<8?8:w-8,y=100+(i%8)*67-par;float sway=(float)(Math.sin(t*.48+i*2.1)*breeze*11);canvas.save();canvas.translate(x+sway,y);canvas.rotate((i<8?-35:35)+(float)Math.sin(t*.43+i)*7);color(night?0x623B694C:0x7A5C9A64);canvas.drawOval(-12,-5,12,5,paint);color(night?0x193B694C:0x225C9A64);canvas.drawOval(-14,-7,14,7,paint);canvas.restore();}
+    if(move&&leaves){for(int i=0;i<3;i++){double cycle=t+i*43;float y=(float)((cycle*8)%(h+180))-90;float x=8+(float)((Math.sin(cycle*.18)+1)*6);if(i%2==1)x=w-x;canvas.save();canvas.translate(x,y);canvas.rotate((float)cycle*13);color(night?0x805A8053:0xB08CC07A);canvas.drawOval(-4,-1.5f,4,1.5f,paint);canvas.restore();}}
     canvas.restore();
   }
   static void settings(LinearLayout parent,AmbientView scene){
